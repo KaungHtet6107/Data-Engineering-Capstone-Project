@@ -1,0 +1,164 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 mysql> CREATE DATABASE sales;\
+Query OK, 1 row affected (0.01 sec)\
+\
+mysql> SHOW DATABASES;\
++--------------------+\
+| Database           |\
++--------------------+\
+| information_schema |\
+| mysql              |\
+| performance_schema |\
+| sales              |\
+| sys                |\
++--------------------+\
+5 rows in set (0.00 sec)\
+\
+mysql> USE sales;\
+Database changed\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+mysql> CREATE TABLE sales_data (\
+    ->     product_id INT,\
+    ->     customer_id INT,\
+    ->     price INT,\
+    ->     quantity INT,\
+    ->     timestamp TIMESTAMP\
+    -> );\
+Query OK, 0 rows affected (0.03 sec)\
+\
+mysql> SHOW TABLES;\
++-----------------+\
+| Tables_in_sales |\
++-----------------+\
+| sales_data      |\
++-----------------+\
+1 row in set (0.00 sec)\
+\
+mysql> DESCRIBE sales_data;\
++-------------+-----------+------+-----+---------+-------+\
+| Field       | Type      | Null | Key | Default | Extra |\
++-------------+-----------+------+-----+---------+-------+\
+| product_id  | int       | YES  |     | NULL    |       |\
+| customer_id | int       | YES  |     | NULL    |       |\
+| price       | int       | YES  |     | NULL    |       |\
+| quantity    | int       | YES  |     | NULL    |       |\
+| timestamp   | timestamp | YES  |     | NULL    |       |\
++-------------+-----------+------+-----+---------+-------+\
+5 rows in set (0.00 sec)\
+\
+mysql> \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+mysql> USE sales;\
+Reading table information for completion of table and column names\
+You can turn off this feature to get a quicker startup with -A\
+\
+Database changed\
+mysql> SHOW VARIABLES LIKE 'local_infile';\
++---------------+-------+\
+| Variable_name | Value |\
++---------------+-------+\
+| local_infile  | ON    |\
++---------------+-------+\
+1 row in set (0.01 sec)\
+\
+mysql> LOAD DATA LOCAL INFILE '/home/project/oltpdata.csv'\
+    -> INTO TABLE sales_data\
+    -> FIELDS TERMINATED BY ','\
+    -> LINES TERMINATED BY '\\n'\
+    -> IGNORE 1 ROWS\
+    -> (product_id, customer_id, price, quantity, timestamp);\
+Query OK, 2604 rows affected (0.05 sec)\
+Records: 2604  Deleted: 0  Skipped: 0  Warnings: 0\
+\
+mysql> SELECT COUNT(*) AS total_records\
+    -> FROM sales_data;\
++---------------+\
+| total_records |\
++---------------+\
+|          2604 |\
++---------------+\
+1 row in set (0.01 sec)\
+\
+mysql> CREATE INDEX ts\
+    -> ON sales_data(timestamp);\
+Query OK, 0 rows affected (0.06 sec)\
+Records: 0  Duplicates: 0  Warnings: 0\
+\
+mysql> SHOW INDEX FROM sales_data;\
++------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+\
+| Table      | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment | Visible | Expression |\
++------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+\
+| sales_data |          1 | ts       |            1 | timestamp   | A         |        2604 |     NULL |   NULL | YES  | BTREE      |         |               | YES     | NULL       |\
++------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+\
+1 row in set (0.00 sec)\
+\
+mysql> \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+theia@theiadocker-kaunghtet061:/home/project$ touch datadump.sh\
+theia@theiadocker-kaunghtet061:/home/project$ nano datadump.sh\
+theia@theiadocker-kaunghtet061:/home/project$ ./datadump.sh\
+bash: ./datadump.sh: Permission denied\
+theia@theiadocker-kaunghtet061:/home/project$ ls -l sales_data.sql\
+ls: cannot access 'sales_data.sql': No such file or directory\
+theia@theiadocker-kaunghtet061:/home/project$ chmod +x datadump.sh\
+theia@theiadocker-kaunghtet061:/home/project$ ls -l datadump.sh\
+-rwxr-xr-x 1 theia users 68 Sep 26 03:06 datadump.sh\
+theia@theiadocker-kaunghtet061:/home/project$ ./datadump.sh\
+Enter password: \
+theia@theiadocker-kaunghtet061:/home/project$ ls -l sales_data.sql\
+-rw-r--r-- 1 theia users 110457 Sep 26 03:09 sales_data.sql\
+theia@theiadocker-kaunghtet061:/home/project$ head -20 sales_data.sql\
+-- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)\
+--\
+-- Host: mysql    Database: sales\
+-- ------------------------------------------------------\
+-- Server version       8.0.37\
+\
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;\
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;\
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;\
+/*!50503 SET NAMES utf8mb4 */;\
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;\
+/*!40103 SET TIME_ZONE='+00:00' */;\
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;\
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;\
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;\
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;\
+\
+--\
+-- Table structure for table `sales_data`\
+--\
+theia@theiadocker-kaunghtet061:/home/project$ }

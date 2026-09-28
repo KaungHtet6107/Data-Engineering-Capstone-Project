@@ -1,0 +1,240 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 CREATE DATABASE softcart;\
+\
+-- =========================================================\
+-- SOFTCART DATA WAREHOUSE\
+-- Tasks 1-6\
+-- =========================================================\
+\
+BEGIN;\
+\
+-- =========================================================\
+-- Task 1: Dimension table - softcartDimDate\
+-- =========================================================\
+\
+CREATE TABLE "softcartDimDate"\
+(\
+    dateid INTEGER NOT NULL,\
+    date DATE,\
+    year INTEGER,\
+    quarter INTEGER,\
+    quartername CHAR(50),\
+    month INTEGER,\
+    monthname CHAR(50),\
+    day INTEGER,\
+    weekday INTEGER,\
+    weekdayname CHAR(50),\
+\
+    CONSTRAINT "softcartDimDate_pkey"\
+        PRIMARY KEY (dateid)\
+);\
+\
+\
+-- =========================================================\
+-- Task 2: Dimension table - softcartDimCategory\
+-- =========================================================\
+\
+CREATE TABLE "softcartDimCategory"\
+(\
+    categoryid INTEGER NOT NULL,\
+    category CHAR(50),\
+\
+    CONSTRAINT "softcartDimCategory_pkey"\
+        PRIMARY KEY (categoryid)\
+);\
+\
+\
+-- =========================================================\
+-- Task 3: Dimension table - softcartDimItem\
+-- =========================================================\
+\
+CREATE TABLE "softcartDimItem"\
+(\
+    itemid INTEGER NOT NULL,\
+    item CHAR(50),\
+\
+    CONSTRAINT "softcartDimItem_pkey"\
+        PRIMARY KEY (itemid)\
+);\
+\
+\
+-- =========================================================\
+-- Task 4: Dimension table - softcartDimCountry\
+-- =========================================================\
+\
+CREATE TABLE "softcartDimCountry"\
+(\
+    countryid INTEGER NOT NULL,\
+    country CHAR(50),\
+\
+    CONSTRAINT "softcartDimCountry_pkey"\
+        PRIMARY KEY (countryid)\
+);\
+\
+\
+-- =========================================================\
+-- Task 5: Fact table - softcartFactSales\
+-- =========================================================\
+\
+CREATE TABLE "softcartFactSales"\
+(\
+    orderid INTEGER NOT NULL,\
+    dateid INTEGER,\
+    countryid INTEGER,\
+    categoryid INTEGER,\
+    itemid INTEGER,\
+    amount INTEGER,\
+\
+    CONSTRAINT "softcartFactSales_pkey"\
+        PRIMARY KEY (orderid)\
+);\
+\
+\
+-- =========================================================\
+-- Task 6: Relationships\
+-- =========================================================\
+\
+-- Date -> Fact Sales\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_date"\
+FOREIGN KEY (dateid)\
+REFERENCES "softcartDimDate" (dateid);\
+\
+\
+-- Category -> Fact Sales\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_category"\
+FOREIGN KEY (categoryid)\
+REFERENCES "softcartDimCategory" (categoryid);\
+\
+\
+-- Item -> Fact Sales\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_item"\
+FOREIGN KEY (itemid)\
+REFERENCES "softcartDimItem" (itemid);\
+\
+\
+-- Country -> Fact Sales\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_country"\
+FOREIGN KEY (countryid)\
+REFERENCES "softcartDimCountry" (countryid);\
+\
+\
+COMMIT;\
+\
+\
+\
+\
+CREATE DATABASE staging;\
+\
+\
+BEGIN;\
+\
+CREATE TABLE "softcartDimDate"\
+(\
+    dateid INTEGER NOT NULL,\
+    date DATE,\
+    year INTEGER,\
+    quarter INTEGER,\
+    quartername CHAR(50),\
+    month INTEGER,\
+    monthname CHAR(50),\
+    day INTEGER,\
+    weekday INTEGER,\
+    weekdayname CHAR(50),\
+\
+    CONSTRAINT "softcartDimDate_pkey"\
+        PRIMARY KEY (dateid)\
+);\
+\
+\
+CREATE TABLE "softcartDimCategory"\
+(\
+    categoryid INTEGER NOT NULL,\
+    category CHAR(50),\
+\
+    CONSTRAINT "softcartDimCategory_pkey"\
+        PRIMARY KEY (categoryid)\
+);\
+\
+\
+CREATE TABLE "softcartDimItem"\
+(\
+    itemid INTEGER NOT NULL,\
+    item CHAR(50),\
+\
+    CONSTRAINT "softcartDimItem_pkey"\
+        PRIMARY KEY (itemid)\
+);\
+\
+\
+CREATE TABLE "softcartDimCountry"\
+(\
+    countryid INTEGER NOT NULL,\
+    country CHAR(50),\
+\
+    CONSTRAINT "softcartDimCountry_pkey"\
+        PRIMARY KEY (countryid)\
+);\
+\
+\
+CREATE TABLE "softcartFactSales"\
+(\
+    orderid INTEGER NOT NULL,\
+    dateid INTEGER,\
+    countryid INTEGER,\
+    categoryid INTEGER,\
+    itemid INTEGER,\
+    amount INTEGER,\
+\
+    CONSTRAINT "softcartFactSales_pkey"\
+        PRIMARY KEY (orderid)\
+);\
+\
+\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_date"\
+FOREIGN KEY (dateid)\
+REFERENCES "softcartDimDate" (dateid);\
+\
+\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_category"\
+FOREIGN KEY (categoryid)\
+REFERENCES "softcartDimCategory" (categoryid);\
+\
+\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_item"\
+FOREIGN KEY (itemid)\
+REFERENCES "softcartDimItem" (itemid);\
+\
+\
+ALTER TABLE "softcartFactSales"\
+ADD CONSTRAINT "fk_factsales_country"\
+FOREIGN KEY (countryid)\
+REFERENCES "softcartDimCountry" (countryid);\
+\
+\
+COMMIT;\
+\
+\
+\
+\
+\
+\
+Task 1 \uc0\u8594  DimDate screenshot\
+Task 2 \uc0\u8594  DimCategory\
+Task 3 \uc0\u8594  DimItem\
+Task 4 \uc0\u8594  Category + Item + Country screenshot\
+Task 5 \uc0\u8594  FactSales screenshot\
+Task 6 \uc0\u8594  Complete Star Schema + relationships screenshot\
+Task 7 \uc0\u8594  staging schema creation success screenshot}

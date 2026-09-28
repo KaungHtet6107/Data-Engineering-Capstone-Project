@@ -1,0 +1,169 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ===== Task 1: Import data =====\
+\
+COMMAND:\
+mongoimport --db catalog --collection electronics --file catalog.json\
+\
+OUTPUT:\
+theia@theiaopenshift-kaunghtet061:/home/project$ mongoimport --db catalog --collection electronics --file /home/project/catalog.json\
+2026-09-26T11:42:08.625-0400    connected to: mongodb://localhost/\
+2026-09-26T11:42:08.652-0400    438 document(s) imported successfully. 0 document(s) failed to import.\
+theia@theiaopenshift-kaunghtet061:/home/project$ \
+\
+\
+===== Task 2: List all databases =====\
+\
+COMMAND:\
+show dbs\
+\
+OUTPUT:\
+theia@theiaopenshift-kaunghtet061:/home/project$ mongosh\
+Current Mongosh Log ID: 6ab7e808f1f1b16adf136a03\
+Connecting to:          mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.12.0\
+Using MongoDB:          6.0.29\
+Using Mongosh:          2.12.0\
+\
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/\
+\
+------\
+   The server generated these startup warnings when booting\
+   2026-09-26T11:40:24.509-04:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted\
+   2026-09-26T11:40:24.512-04:00: You are running on a NUMA machine. We suggest launching mongod like this to avoid performance problems: numactl --interleave=all mongod [other options]\
+------\
+\
+test> show dbs\
+admin    40.00 KiB\
+catalog  48.00 KiB\
+config   12.00 KiB\
+local    40.00 KiB\
+test> \
+\
+\
+===== Task 3: List collections =====\
+\
+COMMAND:\
+use catalog\
+show collections\
+\
+OUTPUT:\
+test> use catalog\
+switched to db catalog\
+catalog> show collections\
+electronics\
+catalog> \
+\
+\
+===== Task 4: Create index =====\
+\
+COMMAND:\
+db.electronics.createIndex(\{ type: 1 \})\
+\
+OUTPUT:\
+catalog> db.electronics.createIndex(\{ type: 1 \})\
+type_1\
+catalog> db.electronics.getIndexes()\
+[\
+  \{ v: 2, key: \{ _id: 1 \}, name: '_id_' \},\
+  \{ v: 2, key: \{ type: 1 \}, name: 'type_1' \}\
+]\
+catalog> \
+\
+\
+===== Task 5: Count laptops =====\
+\
+COMMAND:\
+db.electronics.countDocuments(\{ type: "laptop" \})\
+\
+OUTPUT:\
+catalog> db.electronics.countDocuments(\{ type: "laptop" \})\
+389\
+catalog> \
+\
+===== Task 6: Count smart phones with 6-inch screen =====\
+\
+COMMAND:\
+db.electronics.countDocuments(\{\
+    type: "smart phone",\
+    "screen size": 6\
+\})\
+\
+OUTPUT:\
+catalog> db.electronics.countDocuments(\{\
+|     type: "smart phone",\
+|     "screen size": 6\
+| \})\
+8\
+catalog> \
+\
+\
+===== Task 7: Average screen size =====\
+\
+COMMAND:\
+db.electronics.aggregate([\
+    \{\
+        $match: \{ type: "smart phone" \}\
+    \},\
+    \{\
+        $group: \{\
+            _id: null,\
+            average_screen_size: \{\
+                $avg: "$screen size"\
+            \}\
+        \}\
+    \}\
+])\
+\
+OUTPUT:\
+catalog> db.electronics.countDocuments(\{\
+|     type: "smart phone",\
+|     "screen size": 6\
+| \})\
+8\
+catalog> db.electronics.aggregate([\
+|     \{\
+|         $match: \{\
+|             type: "smart phone"\
+|         \}\
+|     \},\
+|     \{\
+|         $group: \{\
+|             _id: null,\
+|             average_screen_size: \{\
+|                 $avg: "$screen size"\
+|             \}\
+|         \}\
+|     \}\
+| ])\
+[ \{ _id: null, average_screen_size: 6 \} ]\
+catalog> \
+\
+\
+===== Task 8: Export CSV =====\
+\
+COMMAND:\
+mongoexport --db catalog --collection electronics --type=csv --fields="_id,type,model" --out=electronics.csv\
+\
+OUTPUT:\
+theia@theiaopenshift-kaunghtet061:/home/project$ mongoexport --db catalog --collection electronics --type=csv --fields="_id,type,model" --out=electronics.csv\
+2026-09-26T11:49:08.163-0400    connected to: mongodb://localhost/\
+2026-09-26T11:49:08.172-0400    exported 438 records\
+theia@theiaopenshift-kaunghtet061:/home/project$ ls -l electronics.csv\
+-rw-r--r-- 1 theia users 20316 Sep 26 11:49 electronics.csv\
+theia@theiaopenshift-kaunghtet061:/home/project$ head -10 electronics.csv\
+_id,type,model\
+ObjectId(6ab7e7d01d75989276f65bf8),smart phone,cz\
+ObjectId(6ab7e7d01d75989276f65bf9),smart phone,c3\
+ObjectId(6ab7e7d01d75989276f65bfa),smart phone,platina\
+ObjectId(6ab7e7d01d75989276f65bfb),smart phone,xm23\
+ObjectId(6ab7e7d01d75989276f65bfc),smart phone,k9\
+ObjectId(6ab7e7d01d75989276f65bfd),smart phone,xm23\
+ObjectId(6ab7e7d01d75989276f65bfe),smart phone,platina\
+ObjectId(6ab7e7d01d75989276f65bff),smart phone,c12\
+ObjectId(6ab7e7d01d75989276f65c00),smart phone,xm23\
+theia@theiaopenshift-kaunghtet061:/home/project$ }

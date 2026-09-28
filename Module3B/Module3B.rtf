@@ -1,0 +1,372 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Module 3B - Data Warehouse Reporting\
+\
+Task 1\
+- COPY command\
+\\copy public."DimDate" FROM '/home/project/DimDate.csv' WITH (FORMAT csv, HEADER true);\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 - SELECT first 5\
+SELECT *\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 FROM public."DimDate"\
+ORDER BY dateid\
+LIMIT 5;\
+- Output\
+Test1=# \\copy public."DimDate" FROM '/home/project/DimDate.csv' WITH (FORMAT csv, HEADER true);\
+COPY 1096\
+ dateid |    date    | Year | Quarter |                    QuarterName                     | Month |                     Monthname                      | Day | Weekday |                    WeekdayName                     \
+--------+------------+------+---------+----------------------------------------------------+-------+----------------------------------------------------+-----+---------+----------------------------------------------------\
+      1 | 2019-01-01 | 2019 |       1 | Q1                                                 |     1 | January                                            |   1 |       3 | Tuesday                                           \
+      2 | 2019-01-02 | 2019 |       1 | Q1                                                 |     1 | January                                            |   2 |       4 | Wednesday                                         \
+      3 | 2019-01-03 | 2019 |       1 | Q1                                                 |     1 | January                                            |   3 |       5 | Thursday                                          \
+      4 | 2019-01-04 | 2019 |       1 | Q1                                                 |     1 | January                                            |   4 |       6 | Friday                                            \
+      5 | 2019-01-05 | 2019 |       1 | Q1                                                 |     1 | January                                            |   5 |       7 | Saturday                                          \
+(5 rows)\
+\
+~\
+~\
+~\
+~\
+(END)\
+\
+Task 2\
+- COPY command\
+\\copy public."DimCategory" FROM '/home/project/DimCategory.csv' WITH (FORMAT csv, HEADER true);\
+\
+- SELECT first 5\
+SELECT *\
+FROM public."DimCategory"\
+ORDER BY categoryid\
+LIMIT 5;\
+\
+- Output\
+Test1=# \\copy public."DimCategory" FROM '/home/project/DimCategory.csv' WITH (FORMAT csv, HEADER true);\
+COPY 5\
+Test1=# SELECT *\
+FROM public."DimCategory"\
+ORDER BY categoryid\
+LIMIT 5;\
+ categoryid |                      category                      \
+------------+----------------------------------------------------\
+          1 | Electronics                                       \
+          2 | Books                                             \
+          3 | Toys                                              \
+          4 | Sports                                            \
+          5 | Software                                          \
+(5 rows)\
+\
+\
+Task 3\
+- COPY command\
+\\copy public."DimCountry" FROM '/home/project/DimCountry.csv' WITH (FORMAT csv, HEADER true);\
+\
+- SELECT first 5\
+SELECT *\
+FROM public."DimCountry"\
+ORDER BY countryid\
+LIMIT 5;\
+- Output\
+Test1=# \\copy public."DimCountry" FROM '/home/project/DimCountry.csv' WITH (FORMAT csv, HEADER true);\
+COPY 56\
+Test1=# SELECT *\
+FROM public."DimCountry"\
+ORDER BY countryid\
+LIMIT 5;\
+ countryid |                      country                       \
+-----------+----------------------------------------------------\
+         1 | Argentina                                         \
+         2 | Australia                                         \
+         3 | Austria                                           \
+         4 | Azerbaijan                                        \
+         5 | Belgium                                           \
+(5 rows)\
+\
+Test1=# \
+\
+Task 4\
+- COPY command\
+\\copy public."FactSales" FROM '/home/project/FactSales.csv' WITH (FORMAT csv, HEADER true);\
+\
+- SELECT first 5\
+SELECT *\
+FROM public."FactSales"\
+ORDER BY orderid\
+LIMIT 5;\
+- Output\
+Test1=# \\copy public."FactSales" FROM '/home/project/FactSales.csv' WITH (FORMAT csv, HEADER true);\
+COPY 300000\
+Test1=# SELECT *\
+FROM public."FactSales"\
+ORDER BY orderid\
+LIMIT 5;\
+ orderid | dateid | countryid | categoryid | amount \
+---------+--------+-----------+------------+--------\
+       1 |      1 |         6 |          4 |   5190\
+       2 |      1 |        25 |          2 |   1205\
+       3 |      1 |        22 |          5 |   3155\
+       4 |      1 |        40 |          2 |    268\
+       5 |      1 |        28 |          3 |   3199\
+(5 rows)\
+\
+Task 5\
+- GROUPING SETS query\
+SELECT\
+    c.country,\
+    cat.category,\
+    SUM(f.amount) AS totalsales\
+FROM public."FactSales" f\
+JOIN public."DimCountry" c\
+    ON f.countryid = c.countryid\
+JOIN public."DimCategory" cat\
+    ON f.categoryid = cat.categoryid\
+GROUP BY GROUPING SETS\
+(\
+    (c.country, cat.category),\
+    (c.country),\
+    (cat.category),\
+    ()\
+)\
+ORDER BY\
+    c.country,\
+    cat.category;\
+- Output\
+                      country                       |                      category                      | total\
+sales \
+----------------------------------------------------+----------------------------------------------------+------\
+------\
+ Argentina                                          | Books                                              |    42\
+85010\
+ Argentina                                          | Electronics                                        |    43\
+38757\
+ Argentina                                          | Software                                           |    42\
+92153\
+ Argentina                                          | Sports                                             |    44\
+50354\
+ Argentina                                          | Toys                                               |    43\
+89307\
+ Argentina                                          |                                                    |   217\
+55581\
+ Australia                                          | Books                                              |    43\
+40188\
+ Australia                                          | Electronics                                        |    41\
+94740\
+: Vietnam                                            | Sports                                             |    41\
+75508\
+ Vietnam                                            | Toys                                               |    43\
+06048\
+ Vietnam                                            |                                                    |   212\
+80572\
+                                                    | Books                                              |  2393\
+57597\
+                                                    | Electronics                                        |  2399\
+12568\
+                                                    | Software                                           |  2402\
+89802\
+                                                    | Sports                                             |  2407\
+09913\
+                                                    | Toys                                               |  2407\
+36378\
+                                                    |                                                    | 12010\
+06258\
+(342 rows)\
+\
+(END)\
+\
+Task 6\
+- ROLLUP query\
+SELECT\
+    d."Year" AS year,\
+    c.country,\
+    SUM(f.amount) AS totalsales\
+FROM public."FactSales" f\
+JOIN public."DimDate" d\
+    ON f.dateid = d.dateid\
+JOIN public."DimCountry" c\
+    ON f.countryid = c.countryid\
+GROUP BY ROLLUP\
+(\
+    d."Year",\
+    c.country\
+)\
+ORDER BY\
+    d."Year",\
+    c.country;\
+- Output\
+ year |                      country                       | totalsales \
+------+----------------------------------------------------+------------\
+ 2019 | Argentina                                          |    7163167\
+ 2019 | Australia                                          |    7259016\
+ 2019 | Austria                                            |    7320233\
+ 2019 | Azerbaijan                                         |    7097729\
+ 2019 | Belgium                                            |    7093441\
+ 2019 | Brazil                                             |    7116253\
+ 2019 | Bulgaria                                           |    7312912\
+ 2019 | Canada                                             |    7158271\
+ 2019 | Cyprus                                             |    7250287\
+ 2019 | Czech Republic                                     |    7087032\
+ 2019 | Denmark                                            |    6955746\
+ 2019 | Egypt                                              |    7169300\
+ 2019 | Estonia                                            |    7193792\
+ 2019 | Finland                                            |    7064381\
+ 2019 | France                                             |    7077076\
+ 2019 | Germany                                            |    7056510\
+ 2019 | Greece                                             |    7208571\
+ 2019 | Hungary                                            |    6922795\
+:\
+ 2021 | South Korea                                        |    7224149\
+ 2021 | Spain                                              |    7025450\
+ 2021 | Sudan                                              |    7276542\
+ 2021 | Sweden                                             |    7011799\
+ 2021 | Switzerland                                        |    7211246\
+ 2021 | Taiwan                                             |    7166856\
+ 2021 | Tajikistan                                         |    7244771\
+ 2021 | Thailand                                           |    7194624\
+ 2021 | Turkey                                             |    7217056\
+ 2021 | Ukraine                                            |    7063067\
+ 2021 | United Arab Emirates                               |    7149878\
+ 2021 | United Kingdom                                     |    7082577\
+ 2021 | United States                                      |    6981011\
+ 2021 | Uruguay                                            |    7129542\
+ 2021 | Uzbekistan                                         |    7065974\
+ 2021 | Vietnam                                            |    7136039\
+ 2021 |                                                    |  400835581\
+      |                                                    | 1201006258\
+(172 rows)\
+\
+(END)\
+\
+Task 7\
+- CUBE query\
+SELECT\
+    d."Year" AS year,\
+    c.country,\
+    AVG(f.amount) AS average_sales\
+FROM public."FactSales" f\
+JOIN public."DimDate" d\
+    ON f.dateid = d.dateid\
+JOIN public."DimCountry" c\
+    ON f.countryid = c.countryid\
+GROUP BY CUBE\
+(\
+    d."Year",\
+    c.country\
+)\
+ORDER BY\
+    d."Year",\
+    c.country;\
+- Output\
+ year |                      country                       |     average_sales     \
+------+----------------------------------------------------+-----------------------\
+ 2019 | Argentina                                          | 4017.4800897363993270\
+ 2019 | Australia                                          | 4066.6756302521008403\
+ 2019 | Austria                                            | 4078.1242339832869081\
+ 2019 | Azerbaijan                                         | 3967.4281721632196758\
+ 2019 | Belgium                                            | 3978.3740886146943354\
+ 2019 | Brazil                                             | 4025.0299773755656109\
+ 2019 | Bulgaria                                           | 4087.7093348239239799\
+ 2019 | Canada                                             | 4005.7476217123670957\
+ 2019 | Cyprus                                             | 4045.9190848214285714\
+ 2019 | Czech Republic                                     | 3979.2431218416619876\
+ 2019 | Denmark                                            | 3909.9190556492411467\
+ 2019 | Egypt                                              | 4014.1657334826427772\
+ 2019 | Estonia                                            | 4021.1246506428172163\
+ 2019 | Finland                                            | 3957.6364145658263305\
+ 2019 | France                                             | 3960.3111359820928931\
+ 2019 | Germany                                            | 3946.5939597315436242\
+ 2019 | Greece                                             | 4045.2138047138047138\
+ 2019 | Hungary                                            | 3882.6668536174985979\
+:\
+      | South Africa                                       | 3986.3527110117384013\
+      | South Korea                                        | 4033.3086834733893557\
+      | Spain                                              | 4027.2686679174484053\
+      | Sudan                                              | 3997.0014930944382232\
+      | Sweden                                             | 3909.9841742692236083\
+      | Switzerland                                        | 4015.3137474351800037\
+      | Taiwan                                             | 3933.5465072842734404\
+      | Tajikistan                                         | 4020.4620702541106129\
+      | Thailand                                           | 4080.0702147525676937\
+      | Turkey                                             | 3975.8386915887850467\
+      | Ukraine                                            | 4003.4936614466815809\
+      | United Arab Emirates                               | 4018.7820464767616192\
+      | United Kingdom                                     | 3982.7251255346847685\
+      | United States                                      | 3920.1337936182123531\
+      | Uruguay                                            | 3981.5839402427637722\
+      | Uzbekistan                                         | 4005.2515429212642603\
+      | Vietnam                                            | 3962.8625698324022346\
+      |                                                    | 4003.3541933333333333\
+(228 rows)\
+\
+(END)\
+\
+Task 8\
+- CREATE MATERIALIZED VIEW\
+CREATE MATERIALIZED VIEW total_sales_per_country AS\
+SELECT\
+    c.country,\
+    SUM(f.amount) AS total_sales\
+FROM public."FactSales" f\
+JOIN public."DimCountry" c\
+    ON f.countryid = c.countryid\
+GROUP BY c.country;\
+\
+SELECT 56\
+\
+\
+- SELECT output\
+SELECT *\
+FROM total_sales_per_country\
+ORDER BY country;\
+\
+\
+\
+\
+\
+\
+                      country                       | total_sales \
+----------------------------------------------------+-------------\
+ Argentina                                          |    21755581\
+ Australia                                          |    21522004\
+ Austria                                            |    21365726\
+ Azerbaijan                                         |    21325766\
+ Belgium                                            |    21498249\
+ Brazil                                             |    21350771\
+ Bulgaria                                           |    21410716\
+ Canada                                             |    21575438\
+ Cyprus                                             |    21500526\
+ Czech Republic                                     |    21334142\
+ Denmark                                            |    21331097\
+ Egypt                                              |    21379967\
+ Estonia                                            |    21493054\
+ Finland                                            |    21336188\
+ France                                             |    21341055\
+ Germany                                            |    21301931\
+ Greece                                             |    21412393\
+ Hungary                                            |    21338015\
+:\
+ Singapore                                          |    21534966\
+ South Africa                                       |    21394755\
+ South Korea                                        |    21598368\
+ Spain                                              |    21465342\
+ Sudan                                              |    21415934\
+ Sweden                                             |    21000525\
+ Switzerland                                        |    21526097\
+ Taiwan                                             |    21060208\
+ Tajikistan                                         |    21517513\
+ Thailand                                           |    21848776\
+ Turkey                                             |    21270737\
+ Ukraine                                            |    21474740\
+ United Arab Emirates                               |    21444221\
+ United Kingdom                                     |    21415113\
+ United States                                      |    21007997\
+ Uruguay                                            |    21321382\
+ Uzbekistan                                         |    21416080\
+ Vietnam                                            |    21280572\
+(56 rows)\
+\
+(END)}

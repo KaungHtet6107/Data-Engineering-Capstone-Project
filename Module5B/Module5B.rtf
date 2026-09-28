@@ -1,0 +1,736 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\froman\fcharset0 Times-Bold;\f2\froman\fcharset0 TimesNewRomanPS-BoldMT;
+\f3\fmodern\fcharset0 Courier;\f4\fmodern\fcharset0 Courier-Bold;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red109\green109\blue109;\red109\green109\blue109;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c50196\c50196\c50196;\cssrgb\c50196\c50196\c50196;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+The answer is process_web_log.py\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+Absolutely. This lab is straightforward: 
+\f1\b download the log 
+\f2 \uc0\u8594 
+\f1  create 3 Bash tasks 
+\f2 \uc0\u8594 
+\f1  connect them in order 
+\f2 \uc0\u8594 
+\f1  run the DAG 
+\f2 \uc0\u8594 
+\f1  verify the files/tar
+\f0\b0 .\
+Below is the complete code and commands you can use in your Theia environment.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 Exercise 1 \'97 Prepare the lab environment\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\fs36 \cf0 Step 1: Check/start Airflow\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 First check whether Airflow is running:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 docker ps\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Look for an Airflow container.\
+If the lab provides an Airflow startup script, you can also check:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 ls -la /home/project/airflow\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 and:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 airflow version\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 If 
+\f3\fs26 airflow version
+\f0\fs24  works, Airflow is installed.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f1\b\fs36 \cf0 Step 2: Create the destination directory\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Run:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 mkdir -p /home/project/airflow/dags/capstone\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Verify:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 ls -ld /home/project/airflow/dags/capstone\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f1\b\fs36 \cf0 Step 3: Download 
+\f4\fs39 accesslog.txt
+\f1\fs36 \
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Run:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 cd /home/project/airflow/dags/capstone\
+\
+wget https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0321EN-SkillsNetwork/ETL/accesslog.txt\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Verify:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 ls -lh /home/project/airflow/dags/capstone/accesslog.txt\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Check the first few lines:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 head /home/project/airflow/dags/capstone/accesslog.txt\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 Exercise 2 \'97 Create the DAG\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\fs36 \cf0 Tasks 1\'966: Complete 
+\f4\fs39 process_web_log.py
+\f1\fs36 \
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 The easiest approach is to create 
+\f1\b one complete Python file
+\f0\b0  containing Tasks 1\'966.\
+Run:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 cd /home/project/airflow/dags\
+nano process_web_log.py\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Paste this complete code:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 from airflow import DAG\
+from airflow.operators.bash import BashOperator\
+from datetime import datetime, timedelta\
+\
+\
+# ============================================================\
+# Task 1 - Define the DAG arguments\
+# ============================================================\
+\
+default_args = \{\
+    'owner': 'Kaung Htet',\
+    'start_date': datetime(2023, 1, 1),\
+    'email': ['kaunghtet@example.com'],\
+    'email_on_failure': False,\
+    'email_on_retry': False,\
+    'retries': 1,\
+    'retry_delay': timedelta(minutes=5)\
+\}\
+\
+\
+# ============================================================\
+# Task 2 - Define the DAG\
+# ============================================================\
+\
+dag = DAG(\
+    'process_web_log',\
+    default_args=default_args,\
+    description='Process web server log file',\
+    schedule_interval='@daily',\
+    catchup=False\
+)\
+\
+\
+# ============================================================\
+# Task 3 - Extract data\
+# ============================================================\
+\
+extract_data = BashOperator(\
+    task_id='extract_data',\
+    bash_command="""\
+    awk '\{print $1\}' /home/project/airflow/dags/capstone/accesslog.txt \\\
+    > /home/project/airflow/dags/capstone/extracted_data.txt\
+    """,\
+    dag=dag\
+)\
+\
+\
+# ============================================================\
+# Task 4 - Transform data\
+# ============================================================\
+\
+transform_data = BashOperator(\
+    task_id='transform_data',\
+    bash_command="""\
+    grep -v '198.46.149.143' \\\
+    /home/project/airflow/dags/capstone/extracted_data.txt \\\
+    > /home/project/airflow/dags/capstone/transformed_data.txt\
+    """,\
+    dag=dag\
+)\
+\
+\
+# ============================================================\
+# Task 5 - Load data\
+# ============================================================\
+\
+load_data = BashOperator(\
+    task_id='load_data',\
+    bash_command="""\
+    tar -cf /home/project/airflow/dags/capstone/weblog.tar \\\
+    -C /home/project/airflow/dags/capstone transformed_data.txt\
+    """,\
+    dag=dag\
+)\
+\
+\
+# ============================================================\
+# Task 6 - Define the task pipeline\
+# ============================================================\
+\
+extract_data >> transform_data >> load_data\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Important note about 
+\f4\fs30\fsmilli15210 email
+\f1\fs28 \
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 The email address above is only an example. Since the lab only requires an 
+\f3\fs26 email
+\f0\fs24  argument, you can use your own email address if you want.\
+For example:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 'email': ['your_email@example.com'],\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 You don't need email notifications for this lab because we set:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 'email_on_failure': False,\
+'email_on_retry': False,\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 Understand the three tasks\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 Task 3 \'97 Extract\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 awk '\{print $1\}' /home/project/airflow/dags/capstone/accesslog.txt\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 extracts the 
+\f1\b first field
+\f0\b0  from every log line.\
+The output goes to:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 extracted_data.txt\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf0 \outl0\strokewidth0 \strokec2 Command: airflow tasks test process_web_log extract_data 2026-09-27\
+\
+
+\f3\fs26 \outl0\strokewidth0 \
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Task 4 \'97 Transform\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 grep -v '198.46.149.143' \\\
+/home/project/airflow/dags/capstone/extracted_data.txt \\\
+> /home/project/airflow/dags/capstone/transformed_data.txt\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 means:\
+Remove lines containing 
+\f3\fs26 198.46.149.143
+\f0\fs24 .\
+Output:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 transformed_data.txt\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf0 Command: 
+\f3\fs26 airflow tasks test process_web_log transform_data 2026-09-27\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Task 5 \'97 Load\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 tar -cf weblog.tar transformed_data.txt\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 creates:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 weblog.tar\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 containing 
+\f3\fs26 transformed_data.txt
+\f0\fs24 .\
+\pard\pardeftab720\partightenfactor0
+\cf0 Command: airflow tasks test process_web_log load_data 2026-09-27\
+\
+Task 6 answer is \
+extract_data >> transform_data >> load_data\
+\pard\pardeftab720\partightenfactor0
+\cf3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \
+\pard\pardeftab720\sa321\partightenfactor0
+\cf0 \outl0\strokewidth0 \strokec2 Exercise 3 \'97 Getting the DAG operational\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\fs36 \cf0 Task 7 \'97 Submit the DAG\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Your DAG is already saved here:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+/home/project/airflow/dags/process_web_log.py\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 You already confirmed Airflow recognizes it with:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags list | grep process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 You previously got:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+process_web_log | /home/project/airflow/dags/process_web_log.py | Kaung Htet | True\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 So 
+\f1\b Task 7 is essentially completed
+\f0\b0 .\
+To demonstrate it again, run:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags list | grep process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 Expected:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+process_web_log | /home/project/airflow/dags/process_web_log.py | Kaung Htet | True\
+\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 \strokec2 \uc0\u55357 \u56568  Task 7 screenshot\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Take a screenshot of this command and output.\
+Save:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+Task 7 - Submit the DAG\
+\
+DAG file:\
+/home/project/airflow/dags/process_web_log.py\
+\
+Command:\
+airflow dags list | grep process_web_log\
+\
+Result:\
+process_web_log DAG is recognized by Airflow.\
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ airflow dags list | grep process_web_log\
+process_web_log                                         | /home/project/airflow/dags/process_web_log.py                                                                         | Kaung Htet | True     \
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$\
+\
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf4 \strokec4 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 Task 8 \'97 Unpause the DAG\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Run:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags unpause process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 You should get output indicating that the DAG has been unpaused.\
+Then verify:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags list | grep process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 The last column should show:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+True\
+\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 \strokec2 \uc0\u55357 \u56568  Task 8 screenshot\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Take a screenshot showing:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags unpause process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 and then:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags list | grep process_web_log\
+\
+\
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ airflow dags unpause process_web_log\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:812 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:724 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:747 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:761 FutureWarning: The auth_backends setting in [api] has had airflow.api.auth.backend.session added in the running config, which is needed by the UI. Please update your config before Apache Airflow 3.0.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:738 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/models/base.py:72 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+[2026-09-27T17:46:02.148+0000] \{dagbag.py:545\} INFO - Filling up the DagBag from /home/project/airflow/dags\
+dag_id          | is_paused\
+================+==========\
+process_web_log | True     \
+                           \
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ \
+\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf4 \strokec4 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 Task 9 \'97 Monitor the DAG\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Now this is the important part.\
+Instead of individually testing each task, we want Airflow to execute the 
+\f1\b whole pipeline
+\f0\b0 :\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+extract_data\
+      \uc0\u8595 \
+transform_data\
+      \uc0\u8595 \
+load_data\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 Because you already have an old queued run, I recommend creating a 
+\f1\b new clean manual run
+\f0\b0  after Tasks 4 and 5 have been tested.\
+First check existing runs:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags list-runs -d process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 Then trigger a new run:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags trigger process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 You'll get a new 
+\f3\fs26 run_id
+\f0\fs24 .\
+Wait around 20\'9630 seconds, then:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+airflow dags list-runs -d process_web_log\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 We want the new run to eventually show:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+success\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf4 \strokec4 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f1\b\fs36 \cf0 \strokec2 Check the files\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Once the DAG run is successful:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+ls -lh /home/project/airflow/dags/capstone/\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 You should have all four:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+accesslog.txt\
+extracted_data.txt\
+transformed_data.txt\
+weblog.tar\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 Then verify:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+grep -c '198.46.149.143' /home/project/airflow/dags/capstone/transformed_data.txt\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 Expected:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+0\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 And:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+tar -tf /home/project/airflow/dags/capstone/weblog.tar\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 Expected:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+transformed_data.txt\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf4 \strokec4 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 \uc0\u55357 \u56568  Task 9 \'97 Airflow screenshot\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 The lab specifically says:\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 Take a screenshot of the DAG runs for the Airflow console.\
+Open Airflow in your browser:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+http://localhost:8080\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 You should see:\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b \cf0 DAGs \uc0\u8594  
+\f4\fs26 process_web_log
+\f0\b0\fs24 \
+Click the DAG.\
+Then show the 
+\f1\b Grid/Graph view
+\f0\b0  with:\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs26 \cf0 \strokec2 \
+extract_data       \uc0\u10003 \
+      \uc0\u8595 \
+transform_data     \uc0\u10003 \
+      \uc0\u8595 \
+load_data          \uc0\u10003 \
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \strokec2 And the DAG run should show 
+\f1\b success
+\f0\b0 .\
+That screenshot is your main evidence for 
+\f1\b Task 9
+\f0\b0 .\
+\
+\
+\
+\
+\
+\
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ airflow dags list-runs -d process_web_log\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:812 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:724 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:747 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:761 FutureWarning: The auth_backends setting in [api] has had airflow.api.auth.backend.session added in the running config, which is needed by the UI. Please update your config before Apache Airflow 3.0.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:738 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/models/base.py:72 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+          |          |         | executio | start_da |           \
+dag_id    | run_id   | state   | n_date   | te       | end_date  \
+==========+==========+=========+==========+==========+===========\
+process_w | manual__ | success | 2026-09- | 2026-09- | 2026-09-27\
+eb_log    | 2026-09- |         | 27T17:05 | 27T17:46 | T17:46:24.\
+          | 27T17:05 |         | :35+00:0 | :04.4911 | 533039+00:\
+          | :35+00:0 |         | 0        | 53+00:00 | 00        \
+          | 0        |         |          |          |           \
+process_w | schedule | success | 2026-09- | 2026-09- | 2026-09-27\
+eb_log    | d__2026- |         | 26T00:00 | 27T17:46 | T17:46:24.\
+          | 09-26T00 |         | :00+00:0 | :04.4906 | 542757+00:\
+          | :00:00+0 |         | 0        | 41+00:00 | 00        \
+          | 0:00     |         |          |          |           \
+                                                                 \
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ airflow dags trigger process_web_log\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:812 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:724 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:747 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:761 FutureWarning: The auth_backends setting in [api] has had airflow.api.auth.backend.session added in the running config, which is needed by the UI. Please update your config before Apache Airflow 3.0.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:738 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/models/base.py:72 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+[2026-09-27T17:49:49.221+0000] \{__init__.py:43\} INFO - Loaded API auth backend: airflow.api.auth.backend.basic_auth\
+[2026-09-27T17:49:49.223+0000] \{__init__.py:43\} INFO - Loaded API auth backend: airflow.api.auth.backend.session\
+     |    |     |    |     |    |     | la |     |    |     |    \
+     |    |     |    |     |    |     | st |     |    |     |    \
+     |    |     | da |     |    |     | _s |     |    |     |    \
+     |    |     | ta |     |    |     | ch |     |    |     |    \
+     |    |     | _i |     |    |     | ed |     |    |     |    \
+     |    |     | nt |     |    |     | ul |     |    |     |    \
+     |    |     | er | dat |    | ext | in |     |    |     |    \
+     |    |     | va | a_i |    | ern | g_ |     |    |     |    \
+     |    | dag | l_ | nte | en | al_ | de | log | ru | sta |    \
+     | da | _ru | st | rva | d_ | tri | ci | ica | n_ | rt_ |    \
+     | g_ | n_i | ar | l_e | da | gge | si | l_d | ty | dat | sta\
+conf | id | d   | t  | nd  | te | r   | on | ate | pe | e   | te \
+=====+====+=====+====+=====+====+=====+====+=====+====+=====+====\
+\{\}   | pr | man | 20 | 202 | No | Tru | No | 202 | ma | Non | que\
+     | oc | ual | 26 | 6-0 | ne | e   | ne | 6-0 | nu | e   | ued\
+     | es | __2 | -0 | 9-2 |    |     |    | 9-2 | al |     |    \
+     | s_ | 026 | 9- | 7   |    |     |    | 7   |    |     |    \
+     | we | -09 | 26 | 00: |    |     |    | 17: |    |     |    \
+     | b_ | -27 |    | 00: |    |     |    | 49: |    |     |    \
+     | lo | T17 | 00 | 00+ |    |     |    | 49+ |    |     |    \
+     | g  | :49 | :0 | 00: |    |     |    | 00: |    |     |    \
+     |    | :49 | 0: | 00  |    |     |    | 00  |    |     |    \
+     |    | +00 | 00 |     |    |     |    |     |    |     |    \
+     |    | :00 | +0 |     |    |     |    |     |    |     |    \
+     |    |     | 0: |     |    |     |    |     |    |     |    \
+     |    |     | 00 |     |    |     |    |     |    |     |    \
+                                                                 \
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ airflow dags list-runs -d process_web_log\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:812 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:724 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:747 DeprecationWarning: The auth_backend option in [api] has been renamed to auth_backends - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:761 FutureWarning: The auth_backends setting in [api] has had airflow.api.auth.backend.session added in the running config, which is needed by the UI. Please update your config before Apache Airflow 3.0.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/configuration.py:738 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+/home/airflow/.local/lib/python3.9/site-packages/airflow/models/base.py:72 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.\
+          |          |         | executio | start_da |           \
+dag_id    | run_id   | state   | n_date   | te       | end_date  \
+==========+==========+=========+==========+==========+===========\
+process_w | manual__ | success | 2026-09- | 2026-09- | 2026-09-27\
+eb_log    | 2026-09- |         | 27T17:49 | 27T17:49 | T17:50:03.\
+          | 27T17:49 |         | :49+00:0 | :50.7197 | 224671+00:\
+          | :49+00:0 |         | 0        | 90+00:00 | 00        \
+          | 0        |         |          |          |           \
+process_w | manual__ | success | 2026-09- | 2026-09- | 2026-09-27\
+eb_log    | 2026-09- |         | 27T17:05 | 27T17:46 | T17:46:24.\
+          | 27T17:05 |         | :35+00:0 | :04.4911 | 533039+00:\
+          | :35+00:0 |         | 0        | 53+00:00 | 00        \
+          | 0        |         |          |          |           \
+process_w | schedule | success | 2026-09- | 2026-09- | 2026-09-27\
+eb_log    | d__2026- |         | 26T00:00 | 27T17:46 | T17:46:24.\
+          | 09-26T00 |         | :00+00:0 | :04.4906 | 542757+00:\
+          | :00:00+0 |         | 0        | 41+00:00 | 00        \
+          | 0:00     |         |          |          |           \
+                                                                 \
+theia@theiadocker-kaunghtet061:/home/project/airflow/dags$ \
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 \outl0\strokewidth0 \
+}
